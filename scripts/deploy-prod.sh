@@ -32,7 +32,7 @@ echo "==> Pulling application images"
 compose pull web server
 
 echo "==> Running database migrations"
-compose run --rm --no-deps server node_modules/.bin/prisma migrate deploy --schema apps/server/prisma/schema.prisma
+compose run --rm --no-deps server apps/server/node_modules/.bin/prisma migrate deploy --schema apps/server/prisma/schema.prisma
 
 echo "==> Restarting web and server"
 compose up -d server web
