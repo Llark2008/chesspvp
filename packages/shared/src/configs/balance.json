@@ -1,0 +1,52 @@
+{
+  "match": {
+    "turnTimeSeconds": 75,
+    "reserveTimeSeconds": 300,
+    "firstPlayer": "A"
+  },
+  "economy": {
+    "startingGold": 5,
+    "baseIncomePerTurn": 6,
+    "resourcePointIncome": 3
+  },
+  "combat": {
+    "counterBonus": 1.25,
+    "counterPenalty": 0.8,
+    "minDamage": 1
+  },
+  "counter": {
+    "warrior": { "archer": "bonus", "knight": "penalty" },
+    "archer":  { "mage": "bonus", "warrior": "penalty" },
+    "mage":    { "knight": "bonus", "archer": "penalty" },
+    "knight":  { "warrior": "bonus", "mage": "penalty" },
+    "priest":  {},
+    "gunner":  {},
+    "scout":   {},
+    "poisoner": {}
+  },
+  "base": {
+    "maxHp": 30,
+    "def": 5,
+    "sight": 3
+  },
+  "resourcePoint": {
+    "sight": 2
+  },
+  "outpost": {
+    "incomePerTurn": 5,
+    "defenseBonus": 2
+  },
+  "status": {
+    "poison": {
+      "maxStacks": 5,
+      "decayPerTurn": 1
+    }
+  },
+  "unit": {
+    "populationCap": 16
+  },
+  "recruit": {
+    "maxOrdersPerTurn": 1,
+    "spawnDelayTurns": 1
+  }
+}

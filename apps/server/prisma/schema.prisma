@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// 用户账号：MVP 支持游客；表结构为完整产品预留。
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  username     String    @unique @db.VarChar(32)
+  email        String?   @unique @db.VarChar(255)
+  passwordHash String?   @map("password_hash")
+  isGuest      Boolean   @default(true) @map("is_guest")
+  role         String    @default("player") @db.VarChar(16)
+  avatarUrl    String?   @map("avatar_url")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  lastLoginAt  DateTime? @map("last_login_at")
+
+  ranking    Ranking?
+  matchesA   Match[]      @relation("PlayerA")
+  matchesB   Match[]      @relation("PlayerB")
+  matchesWon Match[]      @relation("Winner")
+  friends    Friendship[] @relation("UserFriends")
+  friendOf   Friendship[] @relation("FriendOf")
+
+  @@map("users")
+}
+
+/// 天梯数据：MVP 不写入，但预留表与字段。
+model Ranking {
+  userId    String   @id @map("user_id") @db.Uuid
+  rating    Int      @default(1000)
+  wins      Int      @default(0)
+  losses    Int      @default(0)
+  draws     Int      @default(0)
+  seasonId  Int      @default(1) @map("season_id")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([seasonId, rating(sort: Desc), wins(sort: Desc), updatedAt(sort: Asc)])
+  @@map("rankings")
+}
+
+/// 对局记录。每场成功结束的对战都会生成一条。
+model Match {
+  id            String   @id @default(uuid()) @db.Uuid
+  playerAId     String   @map("player_a_id") @db.Uuid
+  playerBId     String   @map("player_b_id") @db.Uuid
+  winnerId      String?  @map("winner_id") @db.Uuid
+  result        String   @db.VarChar(32)
+  mapId         String   @map("map_id") @db.VarChar(64)
+  isRanked      Boolean  @default(true) @map("is_ranked")
+  seed          BigInt
+  durationMs    Int      @map("duration_ms")
+  turnCount     Int      @default(0) @map("turn_count")
+  startedAt     DateTime @map("started_at")
+  endedAt       DateTime @map("ended_at")
+  replayVersion Int      @default(1) @map("replay_version")
+
+  playerA User  @relation("PlayerA", fields: [playerAId], references: [id])
+  playerB User  @relation("PlayerB", fields: [playerBId], references: [id])
+  winner  User? @relation("Winner", fields: [winnerId], references: [id])
+
+  replay MatchReplay?
+
+  @@index([playerAId])
+  @@index([playerBId])
+  @@index([endedAt])
+  @@map("matches")
+}
+
+/// 战报回放：完整的初始状态 + 动作序列，支持 BattleEngine.replay()。
+model MatchReplay {
+  matchId      String @id @map("match_id") @db.Uuid
+  initialState Json   @map("initial_state")
+  actions      Json
+  events       Json?
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("match_replays")
+}
+
+/// 好友：MVP 不实现 API，但建表预留。
+model Friendship {
+  userId    String   @map("user_id") @db.Uuid
+  friendId  String   @map("friend_id") @db.Uuid
+  status    String   @db.VarChar(16)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@id([userId, friendId])
+  @@map("friendships")
+}

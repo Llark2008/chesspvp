@@ -1,0 +1,156 @@
+{
+  "mvp_default": {
+    "id": "mvp_default",
+    "displayName": "初版默认地图",
+    "width": 12,
+    "height": 12,
+    "basePositions": {
+      "A": { "x": 5, "y": 0 },
+      "B": { "x": 6, "y": 11 }
+    },
+    "resourcePoints": [
+      { "x": 3, "y": 5 },
+      { "x": 8, "y": 6 }
+    ],
+    "outposts": [],
+    "blockedTiles": [],
+    "initialUnits": {
+      "A": [
+        { "type": "warrior", "position": { "x": 4, "y": 1 } },
+        { "type": "archer",  "position": { "x": 5, "y": 1 } },
+        { "type": "knight",  "position": { "x": 6, "y": 1 } }
+      ],
+      "B": [
+        { "type": "warrior", "position": { "x": 7, "y": 10 } },
+        { "type": "archer",  "position": { "x": 6, "y": 10 } },
+        { "type": "knight",  "position": { "x": 5, "y": 10 } }
+      ]
+    }
+  },
+  "frontier_30": {
+    "id": "frontier_30",
+    "displayName": "前线试验场 30",
+    "width": 30,
+    "height": 30,
+    "basePositions": {
+      "A": { "x": 4, "y": 15 },
+      "B": { "x": 25, "y": 15 }
+    },
+    "resourcePoints": [
+      { "x": 10, "y": 10 },
+      { "x": 19, "y": 10 },
+      { "x": 13, "y": 15 },
+      { "x": 16, "y": 15 },
+      { "x": 10, "y": 20 },
+      { "x": 19, "y": 20 }
+    ],
+    "outposts": [
+      { "x": 10, "y": 15 },
+      { "x": 19, "y": 15 }
+    ],
+    "blockedTiles": [
+      { "x": 10, "y": 11 },
+      { "x": 10, "y": 12 },
+      { "x": 11, "y": 12 },
+      { "x": 12, "y": 12 },
+      { "x": 12, "y": 13 },
+      { "x": 14, "y": 13 },
+      { "x": 15, "y": 13 },
+      { "x": 17, "y": 13 },
+      { "x": 17, "y": 12 },
+      { "x": 18, "y": 12 },
+      { "x": 19, "y": 12 },
+      { "x": 19, "y": 11 },
+      { "x": 12, "y": 16 },
+      { "x": 14, "y": 16 },
+      { "x": 15, "y": 16 },
+      { "x": 17, "y": 16 },
+      { "x": 10, "y": 17 },
+      { "x": 11, "y": 17 },
+      { "x": 12, "y": 17 },
+      { "x": 17, "y": 17 },
+      { "x": 18, "y": 17 },
+      { "x": 19, "y": 17 },
+      { "x": 10, "y": 18 },
+      { "x": 19, "y": 18 }
+    ],
+    "initialUnits": {
+      "A": [
+        { "type": "warrior", "position": { "x": 3, "y": 15 } },
+        { "type": "archer", "position": { "x": 4, "y": 14 } },
+        { "type": "knight", "position": { "x": 4, "y": 16 } }
+      ],
+      "B": [
+        { "type": "warrior", "position": { "x": 26, "y": 15 } },
+        { "type": "archer", "position": { "x": 25, "y": 16 } },
+        { "type": "knight", "position": { "x": 25, "y": 14 } }
+      ]
+    }
+  },
+  "frontier_40": {
+    "id": "frontier_40",
+    "displayName": "前线试验场 40",
+    "width": 40,
+    "height": 40,
+    "basePositions": {
+      "A": { "x": 4, "y": 20 },
+      "B": { "x": 35, "y": 20 }
+    },
+    "resourcePoints": [
+      { "x": 10, "y": 12 },
+      { "x": 10, "y": 27 },
+      { "x": 18, "y": 16 },
+      { "x": 18, "y": 24 },
+      { "x": 21, "y": 16 },
+      { "x": 21, "y": 24 },
+      { "x": 29, "y": 12 },
+      { "x": 29, "y": 27 }
+    ],
+    "outposts": [
+      { "x": 12, "y": 20 },
+      { "x": 27, "y": 20 }
+    ],
+    "blockedTiles": [
+      { "x": 14, "y": 13 },
+      { "x": 14, "y": 14 },
+      { "x": 14, "y": 15 },
+      { "x": 15, "y": 15 },
+      { "x": 16, "y": 15 },
+      { "x": 16, "y": 16 },
+      { "x": 16, "y": 23 },
+      { "x": 15, "y": 23 },
+      { "x": 14, "y": 23 },
+      { "x": 14, "y": 24 },
+      { "x": 14, "y": 25 },
+      { "x": 14, "y": 26 },
+      { "x": 25, "y": 13 },
+      { "x": 25, "y": 14 },
+      { "x": 25, "y": 15 },
+      { "x": 24, "y": 15 },
+      { "x": 23, "y": 15 },
+      { "x": 23, "y": 16 },
+      { "x": 23, "y": 23 },
+      { "x": 24, "y": 23 },
+      { "x": 25, "y": 23 },
+      { "x": 25, "y": 24 },
+      { "x": 25, "y": 25 },
+      { "x": 25, "y": 26 },
+      { "x": 19, "y": 9 },
+      { "x": 20, "y": 9 },
+      { "x": 19, "y": 30 },
+      { "x": 20, "y": 30 }
+    ],
+    "initialUnits": {
+      "A": [
+        { "type": "warrior", "position": { "x": 3, "y": 20 } },
+        { "type": "archer", "position": { "x": 4, "y": 19 } },
+        { "type": "knight", "position": { "x": 4, "y": 21 } }
+      ],
+      "B": [
+        { "type": "warrior", "position": { "x": 36, "y": 20 } },
+        { "type": "archer", "position": { "x": 35, "y": 21 } },
+        { "type": "knight", "position": { "x": 35, "y": 19 } }
+      ]
+    }
+  }
+}
