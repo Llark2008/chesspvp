@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Build server image
+        run: docker build -f apps/server/Dockerfile -t chesspvp-server:${{ github.sha }} .
+
+      - name: Build web image
+        run: docker build -f apps/client/Dockerfile -t chesspvp-web:${{ github.sha }} .
+
+      - name: Validate production compose
+        run: WEB_IMAGE=test/chesspvp-web:${{ github.sha }} SERVER_IMAGE=test/chesspvp-server:${{ github.sha }} docker compose --env-file .env.production.example -f docker-compose.prod.yml config > /dev/null

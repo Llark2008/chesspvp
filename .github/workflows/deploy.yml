@@ -1,0 +1,83 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      TCR_REGISTRY: ${{ secrets.TCR_REGISTRY }}
+      TCR_NAMESPACE: ${{ secrets.TCR_NAMESPACE }}
+      TCR_USERNAME: ${{ secrets.TCR_USERNAME }}
+      TCR_PASSWORD: ${{ secrets.TCR_PASSWORD }}
+      CVM_HOST: ${{ secrets.CVM_HOST }}
+      CVM_PORT: ${{ secrets.CVM_PORT }}
+      CVM_USER: ${{ secrets.CVM_USER }}
+      CVM_SSH_KEY: ${{ secrets.CVM_SSH_KEY }}
+      DEPLOY_DIR: ${{ secrets.CVM_DEPLOY_DIR }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify repository state
+        run: |
+          pnpm typecheck
+          pnpm lint
+          pnpm test
+          pnpm build
+
+      - name: Log in to TCR
+        run: echo "$TCR_PASSWORD" | docker login "$TCR_REGISTRY" --username "$TCR_USERNAME" --password-stdin
+
+      - name: Build and push images
+        env:
+          WEB_IMAGE: ${{ secrets.TCR_REGISTRY }}/${{ secrets.TCR_NAMESPACE }}/chesspvp-web:${{ github.sha }}
+          SERVER_IMAGE: ${{ secrets.TCR_REGISTRY }}/${{ secrets.TCR_NAMESPACE }}/chesspvp-server:${{ github.sha }}
+        run: |
+          docker build -f apps/server/Dockerfile -t "$SERVER_IMAGE" .
+          docker build -f apps/client/Dockerfile -t "$WEB_IMAGE" .
+          docker push "$SERVER_IMAGE"
+          docker push "$WEB_IMAGE"
+          {
+            echo "WEB_IMAGE=$WEB_IMAGE"
+            echo "SERVER_IMAGE=$SERVER_IMAGE"
+          } >> "$GITHUB_ENV"
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$CVM_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${CVM_PORT:-22}" -H "$CVM_HOST" >> ~/.ssh/known_hosts
+
+      - name: Upload deployment assets
+        run: |
+          ssh -p "${CVM_PORT:-22}" "$CVM_USER@$CVM_HOST" "mkdir -p '$DEPLOY_DIR/scripts'"
+          scp -P "${CVM_PORT:-22}" docker-compose.prod.yml "$CVM_USER@$CVM_HOST:$DEPLOY_DIR/docker-compose.prod.yml"
+          scp -P "${CVM_PORT:-22}" scripts/deploy-prod.sh "$CVM_USER@$CVM_HOST:$DEPLOY_DIR/scripts/deploy-prod.sh"
+          ssh -p "${CVM_PORT:-22}" "$CVM_USER@$CVM_HOST" "chmod +x '$DEPLOY_DIR/scripts/deploy-prod.sh'"
+
+      - name: Deploy on CVM
+        run: |
+          ssh -p "${CVM_PORT:-22}" "$CVM_USER@$CVM_HOST" "WEB_IMAGE='$WEB_IMAGE' SERVER_IMAGE='$SERVER_IMAGE' DEPLOY_DIR='$DEPLOY_DIR' bash '$DEPLOY_DIR/scripts/deploy-prod.sh'"

@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "pnpm -r --parallel --filter=@chesspvp/client --filter=@chesspvp/server run dev",
+    "predev": "pnpm --filter @chesspvp/shared run build",
+    "dev": "pnpm -r --parallel --filter=@chesspvp/shared --filter=@chesspvp/client --filter=@chesspvp/server run dev",
+    "pretest": "pnpm --filter @chesspvp/shared run build",
     "build": "pnpm -r run build",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",

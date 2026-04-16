@@ -921,26 +921,28 @@ app.get('/health', async () => ({
 
 ## 15. 部署与 Docker
 
-### `Dockerfile`
+当前生产方案已经不是“服务器拉源码 + 手工启动”，而是镜像驱动：
 
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY . .
-RUN corepack enable && pnpm install --frozen-lockfile
-RUN pnpm --filter @chesspvp/server prisma generate
-RUN pnpm --filter @chesspvp/server build
+- `packages/shared` 先编译到 `dist/`，供服务端运行时消费
+- `apps/server/Dockerfile` 产出 `server` 镜像，运行 `node apps/server/dist/index.js`
+- `apps/client/Dockerfile` 产出 `web` 镜像，内置 Nginx 提供静态资源并反代 `/api/v1`、`/socket.io`
+- `docker-compose.prod.yml` 在单台 CVM 上拉起 `web/server/postgres/redis`
+- `scripts/deploy-prod.sh` 固定执行顺序：
+  1. `up -d postgres redis`
+  2. `pull web server`
+  3. `prisma migrate deploy`
+  4. `up -d server web`
+  5. `curl /health` + 首页 smoke check
+- GitHub Actions 负责：
+  - 校验仓库
+  - 构建并推送镜像到腾讯云 TCR
+  - SSH 到 CVM 触发部署
 
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/server/dist ./dist
-COPY --from=builder /app/apps/server/prisma ./prisma
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
-CMD ["node", "dist/index.js"]
-```
+这意味着：
 
-MVP 阶段本地 `pnpm dev` 运行即可，Docker 化留给后期。
+- 生产服务器不直接依赖 GitHub 可达性
+- 回滚以镜像 SHA tag 为单位
+- 真实环境变量只保存在 CVM `.env.production` 与 GitHub Secrets 中
 
 ## 16. 为完整产品预留的扩展点
 

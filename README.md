@@ -51,16 +51,32 @@ pnpm dev
 ## 运行测试
 
 ```bash
-pnpm -r typecheck
-pnpm -r lint
-pnpm -r test
+pnpm typecheck
+pnpm lint
+pnpm test
 ```
 
 ## 构建
 
 ```bash
-pnpm -r build
+pnpm build
 ```
+
+## 生产部署概览
+
+当前生产链路固定为：
+
+`GitHub -> GitHub Actions -> 腾讯云 TCR -> 单台 CVM (web/server/postgres/redis)`
+
+- `push` 到 `main` 后自动执行校验、构建镜像、推送到 TCR、再通过 SSH 触发 CVM 发布
+- 生产服务器不再 `git pull`，只保存 `.env.production`、`docker-compose.prod.yml` 并拉取镜像
+- 首次上线按“公网 IP + HTTP”跑通，域名和 HTTPS 后续补
+
+部署细节见：
+
+- `docs/deployment/single-cvm-setup.md`
+- `docs/deployment/release-runbook.md`
+- `docs/deployment/env-and-secrets.md`
 
 ## Demo 流程
 
@@ -83,7 +99,7 @@ DATABASE_URL=postgresql://chesspvp:chesspvp@localhost:5432/chesspvp \
 
 ## 环境变量
 
-见 `.env.example`。
+开发环境见 `.env.example`，生产环境见 `.env.production.example`。
 
 ## 项目结构
 

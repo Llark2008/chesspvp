@@ -79,6 +79,35 @@
 
 **关键点**：当前客户端不做乐观预测；**服务器广播的 events 与 snapshot 才是真相**。
 
+## 2.1 生产部署拓扑（当前实现）
+
+当前生产环境不再让 CVM 直接访问 GitHub 拉源码，而是走镜像发布链路：
+
+```
+GitHub main
+  ↓ push
+GitHub Actions
+  ├── CI: typecheck / lint / test / build
+  ├── build web image
+  ├── build server image
+  └── push -> Tencent TCR
+                ↓
+             SSH deploy
+                ↓
+Tencent CVM
+  ├── web (Nginx, port 80)
+  ├── server (Fastify + Socket.IO, internal only)
+  ├── postgres (internal only)
+  └── redis (internal only)
+```
+
+约束固定为：
+
+- 浏览器只访问 `web` 容器暴露的 `80`
+- `/api/v1` 与 `/socket.io` 由 `web` 同源反代到 `server`
+- `server`、`postgres`、`redis` 不对公网开放端口
+- 首次验收使用公网 IP + HTTP；域名、HTTPS、备案留给后续阶段
+
 ## 3. Monorepo 详细结构
 
 ```
@@ -91,7 +120,8 @@ chesspvp/
 ├── .prettierrc
 ├── .gitignore
 ├── .env.example
-├── docker-compose.yml               # postgres + redis
+├── docker-compose.yml               # 开发：postgres + redis
+├── docker-compose.prod.yml          # 生产：web + server + postgres + redis
 ├── README.md
 │
 ├── design/                          # 本设计文档
@@ -170,7 +200,7 @@ chesspvp/
     │   ├── prisma/
     │   │   ├── schema.prisma
     │   │   └── migrations/
-    │   ├── Dockerfile
+    │   ├── Dockerfile              # 生产 server 镜像
     │   ├── package.json
     │   └── tsconfig.json
     │
@@ -179,7 +209,7 @@ chesspvp/
         │   ├── main.tsx
         │   ├── App.tsx
         │   ├── router.tsx
-        │   ├── env.ts
+        │   ├── env.ts              # 开发态 host:3001 / 生产 same-origin
         │   ├── api/
         │   │   ├── http.ts          # axios/fetch 封装
         │   │   ├── auth.ts
@@ -283,7 +313,7 @@ volumes:
   pgdata:
 ```
 
-生产化时再扩展 `server` / `client` / `nginx` 服务（不属于 MVP）。
+当前仓库已补生产化构件：`apps/server/Dockerfile`、`apps/client/Dockerfile`、`apps/client/nginx.conf`、`docker-compose.prod.yml`、`scripts/deploy-prod.sh` 与 `.github/workflows/*`。
 
 ## 6. 启动方式
 
