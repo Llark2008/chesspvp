@@ -5,6 +5,7 @@
   "scripts": {
     "predev": "pnpm --filter @chesspvp/shared run build",
     "dev": "pnpm -r --parallel --filter=@chesspvp/shared --filter=@chesspvp/client --filter=@chesspvp/server run dev",
+    "pretypecheck": "pnpm --filter @chesspvp/shared run build",
     "pretest": "pnpm --filter @chesspvp/shared run build",
     "build": "pnpm -r run build",
     "typecheck": "pnpm -r run typecheck",
